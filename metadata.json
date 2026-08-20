@@ -1,0 +1,6 @@
+{
+  "name": "CampusLink",
+  "description": "Private student networking, project collaboration, and opportunities platform for NIAT students across Annamacharya, NRI, and Chalapathi campuses.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

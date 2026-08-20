@@ -1,0 +1,253 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        (request.auth.token.admin == true) ||
+        (request.auth.token.email != null && request.auth.token.email.lower() == 'manisampatharveti@gmail.com') ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isOwner(docData) {
+      return isAuthenticated() && (
+        (docData.ownerUid != null && docData.ownerUid == request.auth.uid) ||
+        (docData.authorId != null && docData.authorId == request.auth.uid) ||
+        (docData.authorUid != null && docData.authorUid == request.auth.uid) ||
+        (docData.creatorId != null && docData.creatorId == request.auth.uid) ||
+        (docData.userId != null && docData.userId == request.auth.uid) ||
+        (docData.reporterId != null && docData.reporterId == request.auth.uid)
+      );
+    }
+
+    // Unique NIAT ID registry
+    match /niatIdRegistry/{niatId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        isAdmin() ||
+        request.resource.data.authUid == request.auth.uid ||
+        request.resource.data.uid == request.auth.uid
+      );
+      allow update: if isAuthenticated() && (
+        isAdmin() ||
+        ((resource.data.authUid == request.auth.uid || resource.data.uid == request.auth.uid) &&
+         (request.resource.data.authUid == request.auth.uid || request.resource.data.uid == request.auth.uid))
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Approved students roster
+    match /approved_students/{studentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (
+        isAuthenticated() &&
+        resource.data.invitationUsed == false &&
+        request.resource.data.invitationUsed == true &&
+        request.resource.data.registeredUid == request.auth.uid
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Student profiles
+    match /students/{studentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        isAdmin() ||
+        studentId == request.auth.uid ||
+        request.resource.data.uid == request.auth.uid ||
+        request.resource.data.firebaseUid == request.auth.uid ||
+        request.resource.data.authUid == request.auth.uid
+      );
+      allow update: if isAuthenticated() && (
+        isAdmin() || (
+          (studentId == request.auth.uid || resource.data.uid == request.auth.uid || resource.data.firebaseUid == request.auth.uid || resource.data.authUid == request.auth.uid) &&
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['studentId', 'name', 'campus', 'year', 'section', 'branch', 'status', 'isVerified', 'isAdmin', 'role'])
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        isAdmin() ||
+        userId == request.auth.uid ||
+        request.resource.data.uid == request.auth.uid ||
+        request.resource.data.firebaseUid == request.auth.uid ||
+        request.resource.data.authUid == request.auth.uid
+      );
+      allow update: if isAuthenticated() && (
+        isAdmin() || (
+          (userId == request.auth.uid || resource.data.uid == request.auth.uid || resource.data.firebaseUid == request.auth.uid || resource.data.authUid == request.auth.uid) &&
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['studentId', 'name', 'campus', 'year', 'section', 'branch', 'status', 'isVerified', 'isAdmin', 'role'])
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    // System configurations and global assets
+    match /config/{configDoc} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /appSettings/{docId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Admin roster
+    match /admins/{adminId} {
+      allow read: if isAuthenticated() && (isAdmin() || request.auth.uid == adminId);
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Social & Collaboration collections
+    match /posts/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        request.resource.data.ownerUid == request.auth.uid ||
+        request.resource.data.authorId == request.auth.uid
+      );
+      allow update: if isAuthenticated() && (
+        isAdmin() ||
+        (isOwner(resource.data) && (request.resource.data.ownerUid == resource.data.ownerUid || request.resource.data.authorId == resource.data.authorId)) ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'comments', 'commentsCount', 'saves'])
+      );
+      allow delete: if isAuthenticated() && (
+        isAdmin() ||
+        isOwner(resource.data)
+      );
+    }
+
+    match /connections/{connId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        resource.data.senderId == request.auth.uid ||
+        resource.data.receiverId == request.auth.uid
+      );
+      allow create: if isAuthenticated() && (
+        request.resource.data.senderId == request.auth.uid
+      );
+      allow update, delete: if isAuthenticated() && (
+        isAdmin() ||
+        resource.data.senderId == request.auth.uid ||
+        resource.data.receiverId == request.auth.uid
+      );
+    }
+
+    match /projects/{projId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        request.resource.data.ownerUid == request.auth.uid ||
+        request.resource.data.creatorId == request.auth.uid
+      );
+      allow update: if isAuthenticated() && (
+        isAdmin() ||
+        (isOwner(resource.data) && (request.resource.data.ownerUid == resource.data.ownerUid || request.resource.data.creatorId == resource.data.creatorId)) ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['applicants', 'applicantsCount', 'status'])
+      );
+      allow delete: if isAuthenticated() && (
+        isAdmin() ||
+        isOwner(resource.data)
+      );
+    }
+
+    match /opportunities/{oppId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        request.resource.data.ownerUid == request.auth.uid ||
+        request.resource.data.authorUid == request.auth.uid
+      );
+      allow update: if isAuthenticated() && (
+        isAdmin() ||
+        (isOwner(resource.data) && (request.resource.data.ownerUid == resource.data.ownerUid || request.resource.data.authorUid == resource.data.authorUid))
+      );
+      allow delete: if isAuthenticated() && (
+        isAdmin() ||
+        isOwner(resource.data)
+      );
+    }
+
+    match /messages/{msgId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        resource.data.senderId == request.auth.uid ||
+        resource.data.receiverId == request.auth.uid
+      );
+      allow create: if isAuthenticated() && (
+        request.resource.data.senderId == request.auth.uid
+      );
+      allow update, delete: if isAuthenticated() && (
+        isAdmin() ||
+        resource.data.senderId == request.auth.uid ||
+        resource.data.receiverId == request.auth.uid
+      );
+    }
+
+    match /notifications/{notifId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        resource.data.userId == request.auth.uid
+      );
+      allow create: if isAuthenticated() && (
+        request.resource.data.actorId == request.auth.uid
+      );
+      allow update, delete: if isAuthenticated() && (
+        isAdmin() ||
+        resource.data.userId == request.auth.uid
+      );
+    }
+
+    match /reports/{reportId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        resource.data.reporterId == request.auth.uid
+      );
+      allow create: if isAuthenticated() && (
+        request.resource.data.reporterId == request.auth.uid
+      );
+      allow update, delete: if isAdmin();
+    }
+
+    match /studentShowcases/{showcaseId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        request.resource.data.userId == request.auth.uid ||
+        request.resource.data.ownerUid == request.auth.uid
+      );
+      allow update: if isAuthenticated() && (
+        isAdmin() ||
+        (isOwner(resource.data) && (request.resource.data.ownerUid == resource.data.ownerUid || request.resource.data.userId == resource.data.userId)) ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'likesCount', 'saves', 'savesCount', 'viewsCount', 'viewedBy', 'reportsCount', 'status'])
+      );
+      allow delete: if isAuthenticated() && (
+        isAdmin() ||
+        isOwner(resource.data)
+      );
+    }
+
+    match /notificationTokens/{tokenId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        resource.data.uid == request.auth.uid
+      );
+      allow create: if isAuthenticated() && (
+        request.resource.data.uid == request.auth.uid
+      );
+      allow update, delete: if isAuthenticated() && (
+        isAdmin() ||
+        resource.data.uid == request.auth.uid
+      );
+    }
+  }
+}
+

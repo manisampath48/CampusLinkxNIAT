@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
+  <rect width="800" height="800" fill="#8E181D" />
+  
+  <g transform="translate(160, 140)">
+    <!-- Shield Outer Border / Background -->
+    <!-- Left Half Cream -->
+    <path d="M 0 0 L 240 0 L 240 430 C 180 430 0 380 0 280 Z" fill="#FDF8DB" />
+    
+    <!-- Right Half Red -->
+    <path d="M 240 0 L 480 0 L 480 280 C 480 380 300 430 240 430 Z" fill="#8E181D" />
+    
+    <!-- Shield Outer Cream Border -->
+    <path d="M 0 0 L 480 0 L 480 280 C 480 380 300 430 240 430 C 180 430 0 380 0 280 Z" 
+          fill="none" stroke="#FDF8DB" stroke-width="20" stroke-linejoin="miter" />
+
+    <!-- Center vertical dividing line -->
+    <line x1="240" y1="0" x2="240" y2="430" stroke="#FDF8DB" stroke-width="12" />
+
+    <!-- Center horizontal bar -->
+    <!-- Left half red -->
+    <line x1="10" y1="210" x2="240" y2="210" stroke="#8E181D" stroke-width="18" />
+    <!-- Right half cream -->
+    <line x1="240" y1="210" x2="470" y2="210" stroke="#FDF8DB" stroke-width="18" />
+
+    <!-- Serif Text in 4 Quadrants -->
+    <text x="120" y="150" fill="#8E181D" font-size="140" font-weight="bold" font-family="Times New Roman, Times, serif" text-anchor="middle" dominant-baseline="central">N</text>
+    <text x="360" y="150" fill="#FDF8DB" font-size="140" font-weight="bold" font-family="Times New Roman, Times, serif" text-anchor="middle" dominant-baseline="central">I</text>
+    <text x="120" y="310" fill="#8E181D" font-size="140" font-weight="bold" font-family="Times New Roman, Times, serif" text-anchor="middle" dominant-baseline="central">A</text>
+    <text x="360" y="310" fill="#FDF8DB" font-size="140" font-weight="bold" font-family="Times New Roman, Times, serif" text-anchor="middle" dominant-baseline="central">T</text>
+  </g>
+</svg>

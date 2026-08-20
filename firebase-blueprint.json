@@ -1,0 +1,183 @@
+{
+  "entities": {
+    "approved_student": {
+      "title": "Approved Student",
+      "description": "Verified institutional student records",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "campus": { "type": "string" },
+        "year": { "type": "string" },
+        "section": { "type": "string" },
+        "branch": { "type": "string" },
+        "status": { "type": "string" },
+        "invitationCode": { "type": "string" },
+        "invitationUsed": { "type": "boolean" },
+        "registeredUid": { "type": "string" }
+      },
+      "required": ["studentId", "name", "campus", "year", "section", "branch", "status"]
+    },
+    "user": {
+      "title": "User Profile",
+      "description": "Registered CampusLink student user profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "studentId": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "campus": { "type": "string" },
+        "year": { "type": "string" },
+        "section": { "type": "string" },
+        "branch": { "type": "string" },
+        "bio": { "type": "string" },
+        "avatar": { "type": "string" },
+        "isVerified": { "type": "boolean" },
+        "isAdmin": { "type": "boolean" },
+        "status": { "type": "string" }
+      },
+      "required": ["uid", "studentId", "name", "email", "campus", "year", "section", "branch"]
+    },
+    "student_showcase": {
+      "title": "Student Showcase",
+      "description": "30-day student showcase for project and teammate discovery across NIAT campuses",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "studentName": { "type": "string" },
+        "profileImage": { "type": "string" },
+        "campus": { "type": "string" },
+        "batch": { "type": "string" },
+        "skills": { "type": "array" },
+        "technologies": { "type": "array" },
+        "projectTitle": { "type": "string" },
+        "projectDescription": { "type": "string" },
+        "projectImage": { "type": "string" },
+        "githubUrl": { "type": "string" },
+        "liveUrl": { "type": "string" },
+        "achievements": { "type": "string" },
+        "lookingFor": { "type": "array" },
+        "teammateSkills": { "type": "array" },
+        "about": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "expiresAt": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["userId", "studentName", "campus", "projectTitle", "projectDescription", "createdAt", "expiresAt", "status"]
+    },
+    "notification_token": {
+      "title": "FCM Notification Token",
+      "description": "Registration token for device FCM notifications",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "uid": { "type": "string" },
+        "token": { "type": "string" },
+        "platform": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "token", "platform"]
+    }
+  },
+  "firestore": {
+    "approved_students": {
+      "entity": "approved_student",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "studentId": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string" },
+          "campus": { "type": "string" },
+          "year": { "type": "string" },
+          "section": { "type": "string" },
+          "branch": { "type": "string" },
+          "status": { "type": "string" },
+          "invitationCode": { "type": "string" },
+          "invitationUsed": { "type": "boolean" },
+          "registeredUid": { "type": "string" }
+        },
+        "required": ["studentId", "name", "campus", "year", "section", "branch", "status"]
+      }
+    },
+    "users": {
+      "entity": "user",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "uid": { "type": "string" },
+          "studentId": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string" },
+          "campus": { "type": "string" },
+          "year": { "type": "string" },
+          "section": { "type": "string" },
+          "branch": { "type": "string" },
+          "status": { "type": "string" }
+        },
+        "required": ["uid", "studentId", "name", "email", "campus", "year", "section", "branch"]
+      }
+    },
+    "students": {
+      "entity": "user",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "uid": { "type": "string" },
+          "studentId": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string" },
+          "campus": { "type": "string" },
+          "status": { "type": "string" }
+        },
+        "required": ["uid", "studentId", "name", "email", "campus"]
+      }
+    },
+    "niatIdRegistry": {
+      "entity": "user",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "niatId": { "type": "string" },
+          "authUid": { "type": "string" },
+          "email": { "type": "string" }
+        },
+        "required": ["niatId", "authUid"]
+      }
+    },
+    "studentShowcases": {
+      "entity": "student_showcase",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "userId": { "type": "string" },
+          "ownerUid": { "type": "string" },
+          "studentName": { "type": "string" },
+          "campus": { "type": "string" },
+          "projectTitle": { "type": "string" },
+          "status": { "type": "string" }
+        },
+        "required": ["userId", "studentName", "campus", "projectTitle", "status"]
+      }
+    },
+    "notificationTokens": {
+      "entity": "notification_token",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "uid": { "type": "string" },
+          "token": { "type": "string" },
+          "platform": { "type": "string" }
+        },
+        "required": ["uid", "token", "platform"]
+      }
+    }
+  }
+}
